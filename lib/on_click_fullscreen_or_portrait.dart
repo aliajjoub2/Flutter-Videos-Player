@@ -14,7 +14,7 @@ class VideoPlayerBothWidget extends StatefulWidget {
   final VideoPlayerController controller;
 
   const VideoPlayerBothWidget({
-     Key? key,
+    Key? key,
     required this.controller,
   }) : super(key: key);
 
@@ -23,7 +23,7 @@ class VideoPlayerBothWidget extends StatefulWidget {
 }
 
 class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
-  late Orientation target;
+  Orientation? target;
 
   @override
   void initState() {
@@ -39,7 +39,7 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
       final isTargetLandscape = target == Orientation.landscape;
 
       if (isPortrait && isTargetPortrait || isLandscape && isTargetLandscape) {
-        //target = null;
+        //target = Orientation.portrait;
         SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       }
     });
@@ -48,7 +48,8 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
   void setOrientation(bool isPortrait) {
     if (isPortrait) {
       Wakelock.disable();
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: SystemUiOverlay.values);
     } else {
       Wakelock.enable();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
@@ -57,11 +58,13 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
 
   @override
   Widget build(BuildContext context) =>
+      // Container(alignment: Alignment.topCenter, child: buildVideo());
+
       widget.controller.value.isInitialized
           ? Container(alignment: Alignment.topCenter, child: buildVideo())
           : const Center(child: CircularProgressIndicator());
 
-  Widget buildVideo() => OrientationBuilder(
+     Widget buildVideo() => OrientationBuilder(
         builder: (context, orientation) {
           final isPortrait = orientation == Orientation.portrait;
 
@@ -70,7 +73,7 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
           return Stack(
             fit: isPortrait ? StackFit.loose : StackFit.expand,
             children: <Widget>[
-              buildVideoPlayer(),
+              buildVideoPlayer(isPortrait),
               Positioned.fill(
                 child: AdvancedOverlayWidget(
                   controller: widget.controller,
@@ -84,7 +87,17 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
                     } else {
                       AutoOrientation.portraitUpMode();
                     }
-                  } ,
+                    if (target == Orientation.landscape) {
+                      setState(() {
+                        target = Orientation.portrait;
+                      });
+                    }
+                     if (target == Orientation.portrait) {
+                      setState(() {
+                        target = Orientation.landscape;
+                      });
+                    }
+                  },
                 ),
               ),
             ],
@@ -92,25 +105,38 @@ class _VideoPlayerBothWidgetState extends State<VideoPlayerBothWidget> {
         },
       );
 
-  Widget buildVideoPlayer() {
+  Widget buildVideoPlayer(isPortrait) {
     final video = AspectRatio(
       aspectRatio: widget.controller.value.aspectRatio,
       child: VideoPlayer(widget.controller),
     );
 
-    return buildFullScreen(child: video);
+    return buildFullScreen(child: video, isPortrait: isPortrait);
   }
 
-  Widget buildFullScreen({required Widget child,}){
+  Widget buildFullScreen({required Widget child, isPortrait}) {
     final size = widget.controller.value.size;
-    final width = size.width;
-    final height = size.height;
 
-    return FittedBox(
-      fit: BoxFit.cover,
-      child: SizedBox(width: width, height: height, child: child),
-    );
+    var width = size.width;
+    var height = size.height;
+    if (width == 0) {
+      width = MediaQuery.of(context).size.width;
+    }
+    if (height == 0) {
+      height = 100.0;
+    }
+
+    print('===== ${MediaQuery.of(context).size.height}');
+    print('===== ${MediaQuery.of(context).size.width}');
+
+    print(width);
+    print(height);
+    print(target);
+    return SizedBox(
+        width: width,
+        height: isPortrait
+            ? MediaQuery.of(context).size.height
+            : MediaQuery.of(context).size.height,
+        child: child);
   }
-  
-
 }

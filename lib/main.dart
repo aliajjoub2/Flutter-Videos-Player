@@ -37,13 +37,13 @@ class _HomeState extends State<Home> {
   ];
   late VideoPlayerController controller;
 
-  double screenHeight = 0;
-  double screenWidth = 0;
+  // double screenHeight = 0;
+  // double screenWidth = 0;
   bool volumeOn = true;
 
   Widget playlist() {
     return Container(
-      height: screenHeight * 0.35,
+      
       alignment: Alignment.bottomLeft,
       child: ListView.builder(
           shrinkWrap: true,
@@ -62,48 +62,45 @@ class _HomeState extends State<Home> {
       }),
       splashColor: Colors.transparent,
       highlightColor: Colors.amber,
-      child: Container(
-        height: screenHeight * 0.07,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20),
-          child: Row(
-            children: [
-              Text(
-                '0${index + 1}',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Barlow'),
-              ),
-              SizedBox(width: screenWidth * 0.04),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'video title $index',
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Row(
+          children: [
+            Text(
+              '0${index + 1}',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Barlow'),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'video title $index',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Barlow'),
+                  ),
+                  SizedBox(height: 10),
+                  Text('video about $index',
                       style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Barlow'),
-                    ),
-                    SizedBox(height: screenHeight * 0.005),
-                    Text('video about $index',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xff5d6169),
-                        )),
-                  ],
-                ),
+                        fontSize: 13,
+                        color: Color(0xff5d6169),
+                      )),
+                ],
               ),
-              Icon(
-                Icons.menu_rounded,
-                color: Colors.blue,
-              )
-            ],
-          ),
+            ),
+            Icon(
+              Icons.menu_rounded,
+              color: Colors.blue,
+            )
+          ],
         ),
       ),
     );
@@ -179,77 +176,74 @@ class _HomeState extends State<Home> {
   void initState() {
     loadVideoPlayer(myindex);
     super.initState();
-    controller.setLooping(true);
+    //controller.setLooping(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
+    // screenHeight = MediaQuery.of(context).size.height;
+    // screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Video Player in Flutter"),
-        backgroundColor: Colors.redAccent,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-                child: Column(children: [
-              // AspectRatio(
-              //   aspectRatio: controller.value.aspectRatio,
-              //   child: VideoPlayer(controller),
-              // ),
-              VideoPlayerBothWidget(controller: controller),
-              Container(
-                //duration of video
-                child: Text("video $myindex,${getPosition()}"),
-              ),
-              Container(
-                  child: VideoProgressIndicator(controller,
-                      allowScrubbing: true,
-                      colors: VideoProgressColors(
-                        backgroundColor: Colors.redAccent,
-                        playedColor: Colors.green,
-                        bufferedColor: Colors.purple,
-                      ))),
-              Container(
-                child: Row(
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          if (controller.value.isPlaying) {
-                            controller.pause();
-                          } else {
-                            controller.play();
-                          }
+     
+      body: 
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        width: double.infinity,
+        child: SingleChildScrollView(
+          child: Column(children: [
+            // AspectRatio(
+            //   aspectRatio: controller.value.aspectRatio,
+            //   child: VideoPlayer(controller),
+            // ),
+          SizedBox(
+           
+            width: double.infinity,
+            child: VideoPlayerBothWidget(controller: controller),
 
-                          setState(() {});
-                        },
-                        icon: Icon(controller.value.isPlaying
-                            ? Icons.pause
-                            : Icons.play_arrow)),
-                    IconButton(
-                        onPressed: () {
-                          controller.seekTo(Duration(seconds: 0));
+          ),
+            Text("video $myindex,${getPosition()}"),
+            VideoProgressIndicator(controller,
+                allowScrubbing: true,
+                colors: const VideoProgressColors(
+                  backgroundColor: Colors.redAccent,
+                  playedColor: Colors.green,
+                  bufferedColor: Colors.purple,
+                )),
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      if (controller.value.isPlaying) {
+                        controller.pause();
+                      } else {
+                        controller.play();
+                      }
 
-                          setState(() {});
-                        },
-                        icon: Icon(Icons.stop)),
-                  // start speed widget
-                  SpeedWidget(controller: controller,),
-                  ],
-                ),
-              ),
-              // start next and previous
-              nextPrevious(),
-              // strat playlist
-              playlist(),
-            ])),
-          ],
+                      setState(() {});
+                    },
+                    icon: Icon(controller.value.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow)),
+                IconButton(
+                    onPressed: () {
+                      controller.seekTo(Duration(seconds: 0));
+
+                      setState(() {});
+                    },
+                    icon: Icon(Icons.stop)),
+              // start speed widget
+              SpeedWidget(controller: controller,),
+              ],
+            ),
+            // start next and previous
+            nextPrevious(),
+            // strat playlist
+            playlist(),
+          ]),
         ),
       ),
+    
     );
   }
 }
