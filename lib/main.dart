@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:videos/speed.dart';
+
+import 'on_click_fullscreen_or_portrait.dart';
 
 main() {
   runApp(MyApp());
@@ -22,6 +25,8 @@ class Home extends StatefulWidget {
 int myindex = 0;
 
 class _HomeState extends State<Home> {
+  
+
   List list = [
     VideoPlayerController.network(
         'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
@@ -161,7 +166,15 @@ class _HomeState extends State<Home> {
         },
         icon: volumeOn ? Icon(Icons.volume_mute) : Icon(Icons.volume_off));
   }
+ 
+  String getPosition() {
+    final duration = Duration(
+        milliseconds: controller.value.position.inMilliseconds.round());
 
+    return [duration.inMinutes, duration.inSeconds]
+        .map((seg) => seg.remainder(60).toString().padLeft(2, '0'))
+        .join(':');
+  }
   @override
   void initState() {
     loadVideoPlayer(myindex);
@@ -176,7 +189,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Video Player in Flutter"),
+        title: const Text("Video Player in Flutter"),
         backgroundColor: Colors.redAccent,
       ),
       body: SingleChildScrollView(
@@ -184,14 +197,14 @@ class _HomeState extends State<Home> {
           children: [
             Container(
                 child: Column(children: [
-              AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: VideoPlayer(controller),
-              ),
+              // AspectRatio(
+              //   aspectRatio: controller.value.aspectRatio,
+              //   child: VideoPlayer(controller),
+              // ),
+              VideoPlayerBothWidget(controller: controller),
               Container(
                 //duration of video
-                child: Text("video $myindex,Total Duration: " +
-                    controller.value.duration.toString()),
+                child: Text("video $myindex,${getPosition()}"),
               ),
               Container(
                   child: VideoProgressIndicator(controller,
@@ -223,7 +236,9 @@ class _HomeState extends State<Home> {
 
                           setState(() {});
                         },
-                        icon: Icon(Icons.stop))
+                        icon: Icon(Icons.stop)),
+                  // start speed widget
+                  SpeedWidget(controller: controller,),
                   ],
                 ),
               ),
